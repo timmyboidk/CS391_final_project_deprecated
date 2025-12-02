@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import getCollection from '@/lib/db';
+import getCollection from '@/db';
 import { getAllGames } from '@/lib/scraper';
 import { calculateEVForGames } from '@/lib/ev-calculator';
 
