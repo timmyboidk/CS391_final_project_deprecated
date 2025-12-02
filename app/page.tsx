@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useMemo } from 'react';
 import { GameWithEV } from '@/types/lottery';
-import AnalyticsDashboard from '@/components/AnalyticsDashboard';
+import AnalyticsDashboard from '@/app/components/AnalyticsDashboard';
 
 type SortKey = keyof Pick<GameWithEV, 'name' | 'price' | 'overallOddsValue' | 'initialEV' | 'currentEV' | 'evPerDollar' | 'netCurrentEV'>;
 type SortOrder = 'asc' | 'desc';
