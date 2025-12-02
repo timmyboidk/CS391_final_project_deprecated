@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import getCollection, { SNAPSHOTS_COLLECTION } from '@/db';
+import {GameSnapshot, HighVolumeGame, PrizeCliff, RisingStar} from "@/types/lottery";
 
 export const dynamic = 'force-dynamic';
 
@@ -11,25 +12,31 @@ export async function GET() {
         const sevenDaysAgo = new Date();
         sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
 
-        const snapshots = await collection.find({
-            timestamp: { $gte: sevenDaysAgo }
-        }).sort({ timestamp: 1 }).toArray();
+        //Cast the fetch result to your GameSnapshot type
+        const snapshots = (await collection
+            .find({ timestamp: { $gte: sevenDaysAgo } })
+            .sort({ timestamp: 1 })
+            .toArray()) as unknown as GameSnapshot[];
 
         if (!snapshots.length) {
             return NextResponse.json({ risingStars: [], highVolume: [], prizeCliffs: [] });
         }
 
-        // Group data by Game
-        const gameHistory: Record<string, any[]> = {};
-        snapshots.forEach(doc => {
-            if (!gameHistory[doc.gameNumber]) gameHistory[doc.gameNumber] = [];
+        //Group data by Game with proper typing
+        const gameHistory: Record<string, GameSnapshot[]> = {};
+
+        snapshots.forEach((doc) => {
+            if (!gameHistory[doc.gameNumber]) {
+                gameHistory[doc.gameNumber] = [];
+            }
             gameHistory[doc.gameNumber].push(doc);
         });
 
+        //Define insights with specific interfaces
         const insights = {
-            risingStars: [] as any[],
-            highVolume: [] as any[],
-            prizeCliffs: [] as any[]
+            risingStars: [] as RisingStar[],
+            highVolume: [] as HighVolumeGame[],
+            prizeCliffs: [] as PrizeCliff[]
         };
 
         // Mining & Analysis
@@ -106,7 +113,9 @@ export async function GET() {
 
         return NextResponse.json(insights);
 
-    } catch (error: any) {
-        return NextResponse.json({ error: error.message }, { status: 500 });
+    } catch (error) {
+        console.error("Analytics Error:", error);
+        const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+        return NextResponse.json({ error: errorMessage }, { status: 500 });
     }
 }

@@ -51,8 +51,8 @@ export async function GET(request: Request) {
             timestamp
         });
 
-    } catch (error: any) {
+    } catch (error) {
         console.error("Cron Error:", error);
-        return NextResponse.json({ error: error.message }, { status: 500 });
-    }
+        const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+        return NextResponse.json({ error: errorMessage }, { status: 500 });    }
 }
